@@ -33,6 +33,11 @@ namespace Rhino.Licensing
         /// <summary>
         /// Subscription based license
         /// </summary>
-        Subscription
+        Subscription,
+
+        /// <summary>
+        /// Full license withoun any restrictions and limitations
+        /// </summary>
+        Full
     }
 }

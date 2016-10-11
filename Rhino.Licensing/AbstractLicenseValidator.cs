@@ -15,7 +15,7 @@ namespace Rhino.Licensing
     /// <summary>
     /// Base license validator.
     /// </summary>
-    public abstract class AbstractLicenseValidator
+    public abstract class AbstractLicenseValidator : IDisposable
     {
         /// <summary>
         /// License validator logger
@@ -275,9 +275,15 @@ namespace Rhino.Licensing
                 {
                     result = ValidateSubscription();
                 }
+                // never expire
+                if (LicenseType == LicenseType.Full)
+                {
+                    DisableFutureChecks();
+                    result = true;
+                }
                 else
                 {
-                    result = DateTime.UtcNow < ExpirationDate;
+                    result = DateTime.UtcNow.Date <= ExpirationDate;
                 }
 
                 if (result &&
@@ -601,6 +607,17 @@ namespace Rhino.Licensing
         {
             disableFutureChecks = true;
             nextLeaseTimer.Dispose();
+        }
+
+        /// <summary>Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.</summary>
+        /// <filterpriority>2</filterpriority>
+        public void Dispose()
+        {
+            if (discoveryHost != null)
+            {
+                discoveryHost.ClientDiscovered -= DiscoveryHostOnClientDiscovered;
+                discoveryHost.Dispose();
+            }
         }
 
         /// <summary>
